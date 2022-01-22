@@ -15,14 +15,9 @@ public class UI : MonoBehaviour
 
     private int _oilCount = 0;
 
-    private enum ActionType
-    {
-        pay,
-        buy,
-        doubleMoney
-    }
+    private Action _rewardType;
 
-    private ActionType _actionType;
+
 
     void Awake()
     {
@@ -33,9 +28,9 @@ public class UI : MonoBehaviour
 
     void Start()
     {
-        _payButton?.onClick.AddListener(delegate{HandleRewardTypes(ActionType.pay);});
-        _buyButton?.onClick.AddListener(delegate{HandleRewardTypes(ActionType.buy);});
-        _doubleMoneyButton?.onClick.AddListener(delegate{HandleRewardTypes(ActionType.doubleMoney);});
+        _payButton?.onClick.AddListener(delegate{HandleRewardTypes(PayForSomething);});
+        _buyButton?.onClick.AddListener(delegate{HandleRewardTypes(BuySomething);});
+        _doubleMoneyButton?.onClick.AddListener(delegate{HandleRewardTypes(DoubleMoney);});
         
     }
 
@@ -50,35 +45,31 @@ public class UI : MonoBehaviour
         Ads.OnRewardGiven -= RewardUIHandler;
     }
 
-    void HandleRewardTypes(ActionType type)
+    void HandleRewardTypes(Action type)
     {
-        _actionType = type;
-        Ads.ShowRewardedAd();
-        
+        Ads.ShowRewardedAd(type);
     }
 
-    void RewardUIHandler()
+    void PayForSomething()
     {
-        switch(_actionType)
-        {
-            case ActionType.pay:
-            _testUI.text = "Paid!";
-            break;
-
-            case ActionType.buy:
-            _oilCount += 2;
-            _testUI.text = $"{_oilCount}L Oil Given!";
-            break;
-
-            case ActionType.doubleMoney:
-            int money = Convert.ToInt32(_doubleMoney.text);
-            money *= 2;
-            _doubleMoney.text = money.ToString();
-            
-            break;
-        }
+        _testUI.text = "Paid!";
     }
 
-    
-    
+    void BuySomething()
+    {
+        _oilCount += 2;
+        _testUI.text = $"{_oilCount}L Oil Given!";
+    }
+
+    void DoubleMoney()
+    {
+        int money = Convert.ToInt32(_doubleMoney.text);
+        money *= 2;
+        _doubleMoney.text = money.ToString();
+    }
+
+    void RewardUIHandler(Action type)
+    {
+        type?.Invoke();
+    }
 }
